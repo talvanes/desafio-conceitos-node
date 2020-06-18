@@ -62,12 +62,10 @@ app.post("/repositories", (request, response) => {
 app.put("/repositories/:id", validateRepoId, validateRepoIndex, (request, response) => {
   // only update this resource
   const {id} = request.params;
-
-  const index = repositories.findIndex(repo => repo.id === id);
-
-  // update repo
   const {title, url, techs} = request.body;
-
+  
+  // update repo
+  const index = repositories.findIndex(repo => repo.id === id);
   const repo = Object.assign(repositories[index], {title, url, techs});
   repositories[index] = repo;
 
@@ -78,10 +76,9 @@ app.put("/repositories/:id", validateRepoId, validateRepoIndex, (request, respon
 app.delete("/repositories/:id", validateRepoId, validateRepoIndex, (request, response) => {
   // only delete this resoruce
   const {id} = request.params;
-
-  const index = repositories.findIndex(repo => repo.id === id);
-
+  
   // delete repo
+  const index = repositories.findIndex(repo => repo.id === id);
   repositories.splice(index, 1);
 
   // 204 No content
@@ -91,10 +88,9 @@ app.delete("/repositories/:id", validateRepoId, validateRepoIndex, (request, res
 app.post("/repositories/:id/like", validateRepoId, validateRepoIndex, (request, response) => {
   // only "like" this repo
   const {id} = request.params;
-
-  const index = repositories.findIndex(repo => repo.id === id);
-
+  
   // "like" the repo
+  const index = repositories.findIndex(repo => repo.id === id);
   const repo = repositories[index];
   repo.likes += 1;
   repositories[index] = repo;
