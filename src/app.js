@@ -1,12 +1,37 @@
 const express = require("express");
 const cors = require("cors");
 
-const { uuid } = require("uuidv4");
+const { uuid, isUuid } = require("uuidv4");
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
+
+function validateRepoId(request, response, next) {
+  // Take the Repo ID
+  const {id} = request.params;
+
+  // Check UUID
+  if (!isUuid(id)) {
+    return response.status(400).json({ error: 'Invalid Repo ID.' })
+  }
+
+  return next();
+}
+
+function validateRepoIndex(request, response, next) {
+  // Take the Repo ID
+  const {id} = request.params;
+
+  // Check Repo Index
+  const repoIndex = repositories.findIndex(repo => repo.id === id);
+  if (repoIndex < 0) {
+    return response.status(400).json({ error: 'Repo not found.' });
+  }
+
+  return next();
+}
 
 const repositories = [];
 
@@ -34,14 +59,11 @@ app.post("/repositories", (request, response) => {
   return response.status(201).json(repo);
 });
 
-app.put("/repositories/:id", (request, response) => {
+app.put("/repositories/:id", validateRepoId, validateRepoIndex, (request, response) => {
   // only update this resource
   const {id} = request.params;
 
   const index = repositories.findIndex(repo => repo.id === id);
-  if (index < 0) {
-    return response.status(400).json({ error: 'Repo not found.' });
-  }
 
   // update repo
   const {title, url, techs} = request.body;
@@ -53,14 +75,11 @@ app.put("/repositories/:id", (request, response) => {
   return response.json(repo);
 });
 
-app.delete("/repositories/:id", (request, response) => {
+app.delete("/repositories/:id", validateRepoId, validateRepoIndex, (request, response) => {
   // only delete this resoruce
   const {id} = request.params;
 
   const index = repositories.findIndex(repo => repo.id === id);
-  if (index < 0) {
-    return response.status(400).json({ error: 'Repo not found.' });
-  }
 
   // delete repo
   repositories.splice(index, 1);
@@ -69,14 +88,11 @@ app.delete("/repositories/:id", (request, response) => {
   return response.status(204).send();
 });
 
-app.post("/repositories/:id/like", (request, response) => {
+app.post("/repositories/:id/like", validateRepoId, validateRepoIndex, (request, response) => {
   // only "like" this repo
   const {id} = request.params;
 
   const index = repositories.findIndex(repo => repo.id === id);
-  if (index < 0) {
-    return response.status(400).json({ error: 'Repo not found.' });
-  }
 
   // "like" the repo
   const repo = repositories[index];
